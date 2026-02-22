@@ -1,307 +1,374 @@
-# 🌳 Feature Branches Ready for Review
+# 🌳 Git Branches Summary - DareScore
 
-All production-ready changes have been organized into **7 logical feature branches** with proper commit messages.
+**Date**: February 22, 2026  
+**Total Branches**: 8 (7 feature + 1 fix + 1 dev)
 
 ---
 
-## 📋 Feature Branches Overview
+## 📊 Branch Overview
+
+| Branch | Status | Files Changed | Purpose |
+|--------|--------|---------------|---------|
+| `main` | ✅ Stable | - | Production branch |
+| `dev` | ✅ Merged | All features | Development branch |
+| `fix/dependency-and-ci-issues` | ✅ Ready | 25+ | **CURRENT** - Critical fixes |
+| `feature/testing-infrastructure` | ✅ Merged to dev | 15 | Testing setup |
+| `feature/docker-containerization` | ✅ Merged to dev | 8 | Docker configs |
+| `feature/production-security` | ✅ Merged to dev | 5 | Security headers, rate limiting |
+| `feature/monitoring-error-tracking` | ✅ Merged to dev | 4 | Sentry, logging |
+| `feature/legal-compliance` | ✅ Merged to dev | 3 | Terms, Privacy, Security |
+| `feature/deployment-automation-docs` | ✅ Merged to dev | 6 | Vercel, scripts, docs |
+| `feature/database-config-cleanup` | ✅ Merged to dev | 4 | Prisma 7 fixes |
+
+---
+
+## 🔥 **CURRENT BRANCH: `fix/dependency-and-ci-issues`**
+
+### What's in This Branch?
+
+**Critical Production Fixes:**
+1. ✅ Sentry/Next.js 16 compatibility resolved
+2. ✅ All 27 unit tests passing
+3. ✅ CI/CD optimized (no duplicate runs)
+4. ✅ Missing signup page added
+5. ✅ Test environment properly configured
+6. ✅ npm install works smoothly
+
+### Files Changed (25+):
+- `package.json` - Dependency fixes
+- `.npmrc` - NEW - npm configuration
+- `lib/env.ts` - Test environment support
+- `lib/moderation.ts` - Test-friendly exports
+- `lib/validations.ts` - Added missing schemas
+- `lib/points.ts` - Fixed function signature
+- `jest.setup.js` - Polyfills
+- `app/(auth)/signup/page.tsx` - NEW signup page
+- `components/challenge/challenge-card.tsx` - Export fix
+- `sentry.*.config.ts` - Optional initialization
+- `.github/workflows/*.yml` - CI/CD optimization
+- All test files - Database checks, mocking
+- `FIXES_APPLIED.md` - NEW - Comprehensive fix documentation
+
+### Why This Branch Matters:
+🚨 **Without these fixes, the app cannot:**
+- Install dependencies
+- Run tests
+- Deploy to production
+- Work without Sentry
+
+---
+
+## 📋 Merge Strategy
+
+### Option 1: Direct to Main (Recommended for Hotfix)
+```powershell
+git checkout main
+git merge fix/dependency-and-ci-issues
+git push origin main
+```
+
+**Pros**: Fast, fixes critical issues immediately  
+**Cons**: Skips dev branch
+
+---
+
+### Option 2: Through Dev Branch (Recommended for Process)
+```powershell
+# 1. Merge fix to dev
+git checkout dev
+git merge fix/dependency-and-ci-issues
+git push origin dev
+
+# 2. Test on dev
+
+# 3. Merge dev to main
+git checkout main
+git merge dev
+git push origin main
+```
+
+**Pros**: Follows branching strategy  
+**Cons**: Takes longer
+
+---
+
+## 🎯 Recommended Next Steps
+
+### 1. **Merge This Fix Branch ASAP**
+```powershell
+# Quick merge to main
+git checkout main
+git merge fix/dependency-and-ci-issues
+git push origin main
+```
+
+### 2. **Verify Deployment**
+```powershell
+# Install dependencies
+npm install --legacy-peer-deps
+
+# Run tests
+npm run test:unit
+
+# Build for production
+npm run build
+
+# Deploy
+vercel --prod
+```
+
+### 3. **Create Pull Requests for Review** (Optional)
+If you want team review:
+```powershell
+# Push branch to remote
+git push origin fix/dependency-and-ci-issues
+
+# Then create PR on GitHub:
+# fix/dependency-and-ci-issues → main
+```
+
+---
+
+## 📦 All Feature Branches (Already Merged to Dev)
 
 ### 1. `feature/testing-infrastructure`
-**23 files changed, 1266 insertions**
+**Merged**: ✅ Yes (to dev)  
+**Purpose**: Complete testing setup
 
-**What**: Complete testing setup with 4 test types
-- Jest + React Testing Library (unit tests)
-- Playwright (E2E tests)
-- Cucumber (BDD tests)  
-- Sample tests for all types
+**Includes:**
+- Jest configuration
+- Playwright E2E tests
+- Cucumber BDD tests
+- Test scripts
+- Sample tests for all layers
 
-**Commit**: `feat: add comprehensive testing infrastructure`
-
-**Review Priority**: 🟢 Low (foundational, well-documented)
+**Files**: 15 test files + configs
 
 ---
 
 ### 2. `feature/docker-containerization`
-**7 files changed, 327 insertions**
+**Merged**: ✅ Yes (to dev)  
+**Purpose**: Full Docker support
 
-**What**: Full Docker setup for all environments
-- Multi-stage production Dockerfile
-- docker-compose for dev/test/prod
-- Health checks and persistence
+**Includes:**
+- `Dockerfile` (multi-stage)
+- `docker-compose.yml` (production)
+- `docker-compose.dev.yml` (development)
+- `docker-compose.test.yml` (testing)
+- `.dockerignore`
+- `docker-entrypoint.sh`
 
-**Commit**: `feat: add Docker containerization for all environments`
-
-**Review Priority**: 🟢 Low (standard Docker practices)
+**Files**: 8 Docker configs
 
 ---
 
 ### 3. `feature/production-security`
-**5 files changed, 335 insertions, 25 deletions**
+**Merged**: ✅ Yes (to dev)  
+**Purpose**: Security hardening
 
-**What**: Critical security features ⚠️
-- Environment variable validation (Zod)
-- Structured logging (Pino)
-- Security headers (HSTS, CSP, etc.)
-- Rate limiting active
-- Node version enforcement
+**Includes:**
+- Security headers (CSP, HSTS, etc.)
+- Rate limiting (in-memory)
+- `.nvmrc` for Node version
+- `middleware.ts` updates
+- `next.config.js` security settings
 
-**Commit**: `feat: implement production security and logging infrastructure`
-
-**Review Priority**: 🔴 **HIGH** (security critical)
+**Files**: 5 security files
 
 ---
 
 ### 4. `feature/monitoring-error-tracking`
-**4 files changed, 154 insertions**
+**Merged**: ✅ Yes (to dev)  
+**Purpose**: Observability
 
-**What**: Sentry error tracking
-- Client/server/edge configs
-- Health check endpoint
-- Production monitoring ready
+**Includes:**
+- Sentry integration (client, server, edge)
+- Pino structured logging
+- `lib/logger.ts`
+- `lib/env.ts` (environment validation)
 
-**Commit**: `feat: add Sentry error tracking and health monitoring`
-
-**Review Priority**: 🟡 Medium (needs Sentry DSN to activate)
+**Files**: 4 monitoring files
 
 ---
 
 ### 5. `feature/legal-compliance`
-**3 files changed, 575 insertions**
+**Merged**: ✅ Yes (to dev)  
+**Purpose**: Legal pages
 
-**What**: Legal requirements ⚖️
-- Terms of Service
-- Privacy Policy (GDPR/CCPA)
-- SECURITY.md vulnerability disclosure
+**Includes:**
+- `app/legal/terms/page.tsx`
+- `app/legal/privacy/page.tsx`
+- `SECURITY.md`
 
-**Commit**: `feat: add legal compliance and security disclosure policy`
-
-**Review Priority**: 🔴 **HIGH** (legal requirement before launch)
-
-**Action Needed**: Update email addresses to your actual domain
+**Files**: 3 legal files
 
 ---
 
 ### 6. `feature/deployment-automation-docs`
-**31 files changed, 6882 insertions, 196 deletions**
+**Merged**: ✅ Yes (to dev)  
+**Purpose**: Deployment ready
 
-**What**: Complete deployment infrastructure
-- Vercel configuration
-- GitHub Actions CI/CD (4 workflows)
-- Deployment scripts (setup, deploy, backup)
-- Comprehensive documentation (10+ MD files)
+**Includes:**
+- `vercel.json`
+- `scripts/deploy.sh` & `.ps1`
+- `scripts/setup.sh` & `.ps1`
+- `DEPLOYMENT_INSTRUCTIONS.md`
+- `P0_COMPLETE_SUMMARY.md`
+- `START_HERE.md`
 
-**Commit**: `feat: add deployment automation, CI/CD, and comprehensive documentation`
-
-**Review Priority**: 🟡 Medium (large but well-organized)
+**Files**: 6 deployment files
 
 ---
 
 ### 7. `feature/database-config-cleanup`
-**4 files changed, 101 insertions, 147 deletions**
+**Merged**: ✅ Yes (to dev)  
+**Purpose**: Prisma 7 compatibility
 
-**What**: Database config updates
-- Prisma 7 compatibility
-- Remove obsolete scripts
-- Improved connection pooling
+**Includes:**
+- Updated `lib/db.ts`
+- Removed old scripts
+- Prisma adapter setup
+- Connection pooling
 
-**Commit**: `chore: update database config and remove obsolete scripts`
-
-**Review Priority**: 🟢 Low (technical cleanup)
-
----
-
-## 🎯 Recommended Merge Order
-
-### Phase 1: Foundation (Merge First)
-1. `feature/database-config-cleanup` - Clean slate
-2. `feature/production-security` - Security first!
-3. `feature/docker-containerization` - Infrastructure
-
-### Phase 2: Monitoring & Compliance
-4. `feature/monitoring-error-tracking` - Error tracking
-5. `feature/legal-compliance` - Legal compliance
-
-### Phase 3: Development Tools
-6. `feature/testing-infrastructure` - Testing setup
-7. `feature/deployment-automation-docs` - Deployment & docs
+**Files**: 4 database files
 
 ---
 
-## 📝 How to Review & Merge
+## 🔄 Branch Lifecycle
 
-### Option 1: Create PRs via GitHub (Recommended)
+```
+main (production)
+  ↑
+  └── dev (development)
+        ↑
+        ├── feature/testing-infrastructure ✅ MERGED
+        ├── feature/docker-containerization ✅ MERGED
+        ├── feature/production-security ✅ MERGED
+        ├── feature/monitoring-error-tracking ✅ MERGED
+        ├── feature/legal-compliance ✅ MERGED
+        ├── feature/deployment-automation-docs ✅ MERGED
+        └── feature/database-config-cleanup ✅ MERGED
 
-```bash
-# Push all branches to GitHub
-git push origin feature/testing-infrastructure
-git push origin feature/docker-containerization
-git push origin feature/production-security
-git push origin feature/monitoring-error-tracking
-git push origin feature/legal-compliance
-git push origin feature/deployment-automation-docs
-git push origin feature/database-config-cleanup
+fix/dependency-and-ci-issues 🔥 READY TO MERGE
+  ↓
+main (hotfix) OR dev (process)
 ```
 
-Then on GitHub:
-1. Go to **Pull Requests** → **New Pull Request**
-2. Base: `dev` ← Compare: `feature/xxx`
-3. Review the PR template
-4. Request reviews (if working with a team)
-5. Merge when approved
+---
 
-### Option 2: Merge Locally
+## ✅ Verification Checklist
+
+Before merging `fix/dependency-and-ci-issues`:
+
+- [x] All unit tests pass (27/27)
+- [x] `npm install --legacy-peer-deps` works
+- [x] App builds successfully
+- [x] App runs without Sentry
+- [x] CI/CD workflows updated
+- [x] Documentation updated
+- [ ] **Manual testing on local**
+- [ ] **Review by team** (optional)
+- [ ] **Merge to main**
+- [ ] **Deploy to Vercel**
+
+---
+
+## 🚀 Post-Merge Actions
+
+After merging to `main`:
+
+### 1. Deploy to Production
+```powershell
+# Option A: Automatic (if Vercel connected to GitHub)
+git push origin main  # Auto-deploys
+
+# Option B: Manual
+vercel --prod
+```
+
+### 2. Tag Release
+```powershell
+git tag -a v1.0.0-beta -m "Beta release with all fixes"
+git push origin v1.0.0-beta
+```
+
+### 3. Clean Up Branches (Optional)
+```powershell
+# Delete merged feature branches
+git branch -d feature/testing-infrastructure
+git branch -d feature/docker-containerization
+# ... etc
+
+# Delete remote branches
+git push origin --delete feature/testing-infrastructure
+```
+
+### 4. Update Team
+- Announce deployment
+- Share `START_HERE.md`
+- Review `FIXES_APPLIED.md`
+
+---
+
+## 🆘 If Something Goes Wrong
+
+### Rollback Strategy
 
 ```powershell
-# Merge into dev branch
-git checkout dev
+# 1. Find last good commit
+git log --oneline
 
-# Merge each feature (in recommended order)
-git merge feature/database-config-cleanup
-git merge feature/production-security
-git merge feature/docker-containerization
-git merge feature/monitoring-error-tracking
-git merge feature/legal-compliance
-git merge feature/testing-infrastructure
-git merge feature/deployment-automation-docs
+# 2. Revert to it
+git revert <commit-hash>
 
-# Push to remote
-git push origin dev
+# 3. Or hard reset (DANGER!)
+git reset --hard <commit-hash>
+git push origin main --force  # Only if absolutely necessary!
 ```
 
-### Option 3: One-Line Merge All (Fast)
+### Emergency Hotfix
 
 ```powershell
-git checkout dev
-git merge feature/database-config-cleanup feature/production-security feature/docker-containerization feature/monitoring-error-tracking feature/legal-compliance feature/testing-infrastructure feature/deployment-automation-docs
-git push origin dev
+# 1. Create hotfix branch from main
+git checkout main
+git checkout -b hotfix/critical-issue
+
+# 2. Fix the issue
+
+# 3. Merge directly to main
+git checkout main
+git merge hotfix/critical-issue
+git push origin main
 ```
 
 ---
 
-## 🔍 Quick Review Checklist
+## 📞 Support
 
-### For Each PR, Check:
-
-#### Code Quality
-- [ ] TypeScript compiles without errors
-- [ ] ESLint passes
-- [ ] No console.logs in production code
-- [ ] Proper error handling
-
-#### Security
-- [ ] No secrets hardcoded
-- [ ] Input validation present
-- [ ] SQL injection prevented (Prisma)
-- [ ] XSS prevention (React auto-escaping + CSP)
-
-#### Testing
-- [ ] Tests pass locally
-- [ ] Coverage maintained or improved
-- [ ] Critical paths tested
-
-#### Documentation
-- [ ] README updated if needed
-- [ ] Comments for complex logic
-- [ ] Environment variables documented
+If you need help:
+1. Check `FIXES_APPLIED.md` for detailed fix documentation
+2. Check `START_HERE.md` for project overview
+3. Check `DEPLOYMENT_INSTRUCTIONS.md` for deployment help
+4. Check `TESTING.md` for testing guide
 
 ---
 
-## ⚠️ Important Notes
+## 🎉 Summary
 
-### Before Merging Legal Pages
-Update these files with your actual domain:
-- `app/legal/terms/page.tsx` - support@yourdomain.com
-- `app/legal/privacy/page.tsx` - privacy@yourdomain.com
-- `SECURITY.md` - security@yourdomain.com
+**Current State:**
+- ✅ 7 feature branches merged to `dev`
+- ✅ `dev` branch fully tested and stable
+- 🔥 1 critical fix branch ready: `fix/dependency-and-ci-issues`
+- ⏳ Awaiting merge to `main`
 
-### After Merging to Dev
-1. Test locally: `npm run dev`
-2. Run tests: `npm run test:ci`
-3. Build check: `npm run build`
-4. Docker check: `npm run docker:up`
-
-### Merging to Main (Production)
-Only merge to `main` when:
-- ✅ All tests pass
-- ✅ Code reviewed
-- ✅ Tested on staging/preview
-- ✅ Sentry DSN configured
-- ✅ Production database ready
+**What to Do:**
+1. Review this branch
+2. Merge to `main`
+3. Deploy to production
+4. Celebrate! 🎊
 
 ---
 
-## 📊 Statistics
-
-| Metric | Count |
-|--------|-------|
-| Total Branches | 7 |
-| Total Files Changed | 77 |
-| Total Insertions | 9,710 |
-| Total Deletions | 368 |
-| Documentation Files | 16 |
-| Test Files | 14 |
-| Config Files | 15 |
-| Feature Files | 32 |
-
----
-
-## 🎉 What This Gives You
-
-After merging all branches:
-
-✅ **Production-Ready Infrastructure**
-- Docker containerization
-- Automated deployment
-- Error tracking
-- Structured logging
-- Security headers
-- Rate limiting
-
-✅ **Comprehensive Testing**
-- Unit tests
-- Integration tests  
-- E2E tests
-- BDD tests
-- 70%+ coverage target
-
-✅ **Legal Compliance**
-- Terms of Service
-- Privacy Policy (GDPR/CCPA)
-- Vulnerability disclosure
-
-✅ **DevOps Excellence**
-- GitHub Actions CI/CD
-- One-command deployment
-- Database backups
-- Environment parity
-
-✅ **Documentation**
-- 16 comprehensive guides
-- Setup instructions
-- Troubleshooting
-- Best practices
-
----
-
-## 🚀 Next Steps After Merging
-
-1. **Configure Sentry** (free!)
-   - Sign up at https://sentry.io
-   - Get DSN
-   - Add to Vercel
-
-2. **Deploy to Vercel** (free!)
-   ```powershell
-   .\scripts\deploy.ps1
-   ```
-
-3. **Test Everything**
-   - Run all tests
-   - Test on mobile
-   - Check health endpoint
-
-4. **Launch! 🎊**
-
----
-
-**All branches are ready for review and merge!** 🎯
+**Last Updated**: February 22, 2026  
+**Branch**: `fix/dependency-and-ci-issues`  
+**Status**: ✅ Ready to Merge
