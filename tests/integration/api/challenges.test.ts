@@ -1,16 +1,22 @@
 /**
  * @jest-environment node
  */
-/**
- * Integration tests for challenges API
- * These tests require a test database to be running
- * Run: npm run docker:test
- */
+import type { User } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import { POST } from '@/app/api/challenges/create/route'
-import { ChallengeCategory, ChallengeDifficulty } from '@prisma/client'
 
-// Check if database is available
+const authState = { userId: '' }
+
+jest.mock('@/lib/auth', () => ({
+  auth: jest.fn(async () => ({
+    user: {
+      id: authState.userId,
+      email: 'test@example.com',
+      username: 'testuser',
+    },
+  })),
+}))
+
 const isDatabaseAvailable = async () => {
   try {
     await prisma.$queryRaw`SELECT 1`
@@ -20,51 +26,37 @@ const isDatabaseAvailable = async () => {
   }
 }
 
-// Mock NextAuth
-jest.mock('@/lib/auth', () => ({
-  auth: jest.fn(() =>
-    Promise.resolve({
-      user: {
-        id: 'test-user-1',
-        email: 'test@example.com',
-        username: 'testuser',
-      },
-    })
-  ),
-}))
-
 describe('/api/challenges/create', () => {
-  let testUser: any
+  let testUser: User
   let dbAvailable = false
 
   beforeAll(async () => {
     dbAvailable = await isDatabaseAvailable()
     if (!dbAvailable) {
       console.warn('⚠️  Test database not available - skipping API tests')
-      console.warn('   Run: npm run docker:test')
       return
     }
-    // Create a test user
+
     testUser = await prisma.user.upsert({
-      where: { email: 'test@example.com' },
+      where: { email: 'test-challenge-api@example.com' },
       update: {},
       create: {
-        email: 'test@example.com',
-        username: 'testuser',
+        email: 'test-challenge-api@example.com',
+        username: `testuser_${Date.now()}`,
         name: 'Test User',
-        passwordHash: 'hashed_password',
+        password: 'hashed_password_placeholder',
       },
     })
+    authState.userId = testUser.id
   })
 
   afterAll(async () => {
-    // Clean up test data
     if (dbAvailable && testUser) {
       try {
         await prisma.challenge.deleteMany({
           where: { creatorId: testUser.id },
         })
-      } catch (e) {
+      } catch {
         // Ignore cleanup errors
       }
     }
@@ -72,23 +64,18 @@ describe('/api/challenges/create', () => {
   })
 
   it('should create a new challenge with valid data', async () => {
-    if (!dbAvailable) {
-      console.log('Skipping: database not available')
-      return
-    }
+    if (!dbAvailable) return
+
     const validChallenge = {
       title: 'Integration Test Challenge',
       description: 'This is a test challenge for integration testing',
-      category: ChallengeCategory.FITNESS,
-      difficulty: ChallengeDifficulty.MEDIUM,
-      basePoints: 100,
+      category: 'FITNESS',
+      difficulty: 3,
     }
 
     const request = new Request('http://localhost:3000/api/challenges/create', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(validChallenge),
     })
 
@@ -96,30 +83,23 @@ describe('/api/challenges/create', () => {
     const data = await response.json()
 
     expect(response.status).toBe(201)
-    expect(data).toHaveProperty('challenge')
-    expect(data.challenge.title).toBe(validChallenge.title)
-    expect(data.challenge.points).toBe(150) // 100 * 1.5 for MEDIUM
+    expect(data.title).toBe(validChallenge.title)
+    expect(data.points).toBe(30)
   })
 
   it('should reject challenge with banned words', async () => {
-    if (!dbAvailable) {
-      console.log('Skipping: database not available')
-      return
-    }
-    
+    if (!dbAvailable) return
+
     const invalidChallenge = {
       title: 'Drinking Challenge',
       description: 'This contains alcohol',
-      category: ChallengeCategory.FUNNY,
-      difficulty: ChallengeDifficulty.EASY,
-      basePoints: 50,
+      category: 'FUNNY',
+      difficulty: 2,
     }
 
     const request = new Request('http://localhost:3000/api/challenges/create', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(invalidChallenge),
     })
 
@@ -127,28 +107,23 @@ describe('/api/challenges/create', () => {
     const data = await response.json()
 
     expect(response.status).toBe(400)
-    expect(data.error).toContain('banned')
+    expect(Array.isArray(data.errors)).toBe(true)
+    expect(data.errors.length).toBeGreaterThan(0)
   })
 
   it('should reject challenge with invalid data', async () => {
-    if (!dbAvailable) {
-      console.log('Skipping: database not available')
-      return
-    }
-    
+    if (!dbAvailable) return
+
     const invalidChallenge = {
-      title: 'A', // Too short
+      title: 'A',
       description: 'Test',
       category: 'INVALID_CATEGORY',
-      difficulty: ChallengeDifficulty.MEDIUM,
-      basePoints: -10, // Negative points
+      difficulty: 3,
     }
 
     const request = new Request('http://localhost:3000/api/challenges/create', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(invalidChallenge),
     })
 

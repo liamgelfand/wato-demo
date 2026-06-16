@@ -35,8 +35,8 @@ describe('Content Moderation', () => {
     })
 
     it('should handle invalid categories', () => {
-      expect(isValidCategory('INVALID' as any)).toBe(false)
-      expect(isValidCategory('' as any)).toBe(false)
+      expect(isValidCategory('INVALID')).toBe(false)
+      expect(isValidCategory('')).toBe(false)
     })
   })
 })

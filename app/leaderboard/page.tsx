@@ -92,7 +92,16 @@ export default async function LeaderboardPage() {
     return <span className="text-sm text-muted-foreground">{rank}</span>
   }
 
-  const renderLeaderboard = (users: any[], pointsKey: string, isWeekly = false) => (
+  type LeaderboardUser = {
+    id: string
+    username: string
+    name: string | null
+    avatarUrl: string | null
+    totalPoints: number
+    weeklyPoints?: number
+  }
+
+  const renderLeaderboard = (users: LeaderboardUser[], pointsKey: string, isWeekly = false) => (
     <div className="space-y-2">
       {users.length === 0 ? (
         <p className="text-center text-muted-foreground py-8">

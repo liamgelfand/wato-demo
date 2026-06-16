@@ -7,6 +7,7 @@ import { Bell, CheckCheck } from 'lucide-react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { Button } from '@/components/ui/button'
+import type { Notification } from '@prisma/client'
 
 async function markAllRead(userId: string) {
   'use server'
@@ -38,7 +39,7 @@ export default async function NotificationsPage() {
 
   const markAllReadAction = markAllRead.bind(null, userId)
 
-  const getNotificationLink = (notification: any) => {
+  const getNotificationLink = (notification: Notification) => {
     switch (notification.referenceType) {
       case 'ATTEMPT':
         return `/attempt/${notification.referenceId}`

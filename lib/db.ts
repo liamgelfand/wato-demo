@@ -50,7 +50,7 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({
 
 // Log queries in development
 if (isDevelopment && typeof logger !== 'undefined') {
-  prisma.$on('query' as never, (e: any) => {
+  prisma.$on('query' as never, (e: { query: string; params: string; duration: number }) => {
     if (logger) {
       logger.debug(
         {
@@ -78,8 +78,8 @@ const gracefulShutdown = async () => {
   console.log('Database connections closed')
 }
 
-// Handle shutdown signals
-if (typeof process !== 'undefined') {
+// Handle shutdown signals (skip in tests to avoid Jest teardown noise)
+if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'test') {
   process.on('SIGINT', gracefulShutdown)
   process.on('SIGTERM', gracefulShutdown)
   process.on('beforeExit', gracefulShutdown)

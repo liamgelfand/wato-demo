@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 import { submitVerificationVoteSchema } from '@/lib/validations'
 import { awardPoints } from '@/lib/points'
 import { createNotification } from '@/lib/notifications'
+import type { VerificationVoteType } from '@prisma/client'
 
 export async function POST(
   request: Request,
@@ -105,7 +106,7 @@ export async function POST(
       data: {
         attemptId,
         voterId: session.user.id,
-        vote: vote as any,
+        vote: vote as VerificationVoteType,
         reason: reason || null,
       },
     })

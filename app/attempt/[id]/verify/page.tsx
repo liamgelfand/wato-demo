@@ -12,18 +12,28 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle, XCircle, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
 
-interface PageProps {
-  params?: { id: string }
+interface AttemptDetails {
+  id: string
+  status: string
+  proofUrl: string | null
+  challenge: {
+    title: string
+    points: number
+  }
+  user: {
+    username: string
+    name: string | null
+  }
 }
 
-export default function VerifyAttemptPage(_props: PageProps) {
+export default function VerifyAttemptPage() {
   const router = useRouter()
   const params = useParams<{ id: string }>()
   const attemptId = params.id
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
-  const [attempt, setAttempt] = useState<any>(null)
+  const [attempt, setAttempt] = useState<AttemptDetails | null>(null)
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -14,17 +14,15 @@ import { Zap } from 'lucide-react'
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const registered = searchParams.get('registered') === 'true'
+  const registrationMessage = registered
+    ? 'Account created! Sign in to start your first challenge.'
+    : ''
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [success, setSuccess] = useState(registrationMessage)
   const [formData, setFormData] = useState({ email: '', password: '' })
   const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED === 'true'
-
-  useEffect(() => {
-    if (searchParams.get('registered') === 'true') {
-      setSuccess('Account created! Sign in to start your first challenge.')
-    }
-  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

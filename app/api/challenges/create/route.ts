@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 import { createChallengeSchema } from '@/lib/validations'
 import { validateChallengeContent } from '@/lib/moderation'
 import { calculateChallengePoints } from '@/lib/points'
+import type { ChallengeCategory } from '@prisma/client'
 
 export async function POST(request: Request) {
   try {
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
         creatorId: session.user.id,
         title,
         description,
-        category: category as any,
+        category: category as ChallengeCategory,
         difficulty,
         basePoints: 10,
         points,

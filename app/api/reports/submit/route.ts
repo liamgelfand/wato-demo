@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { submitReportSchema } from '@/lib/validations'
+import type { ReportTargetType } from '@prisma/client'
 
 export async function POST(request: Request) {
   try {
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
     await prisma.report.create({
       data: {
         reporterId: session.user.id,
-        targetType: targetType as any,
+        targetType: targetType as ReportTargetType,
         targetId,
         reason,
         details: details || null,

@@ -77,7 +77,7 @@ export function validateCategory(category: string): boolean {
 }
 
 // Alias for tests
-export function isValidCategory(category: any): boolean {
+export function isValidCategory(category: unknown): boolean {
   if (typeof category !== 'string') return false
   return validateCategory(category)
 }

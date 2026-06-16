@@ -11,13 +11,34 @@ import { Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
 
+interface ThreadMessage {
+  id: string
+  body: string
+  createdAt: string
+  sender: {
+    id: string
+    username: string
+    name: string | null
+    avatarUrl: string | null
+  }
+}
+
+interface ThreadDetails {
+  id: string
+  otherUser: {
+    username: string
+    name: string | null
+    avatarUrl: string | null
+  }
+}
+
 export default function ThreadPage() {
   const router = useRouter()
   const params = useParams<{ threadId: string }>()
   const threadId = params.threadId
   const { data: session, status } = useSession()
-  const [thread, setThread] = useState<any>(null)
-  const [messages, setMessages] = useState<any[]>([])
+  const [thread, setThread] = useState<ThreadDetails | null>(null)
+  const [messages, setMessages] = useState<ThreadMessage[]>([])
   const [messageBody, setMessageBody] = useState('')
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)

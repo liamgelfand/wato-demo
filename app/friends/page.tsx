@@ -122,7 +122,7 @@ export default async function FriendsPage() {
           Friends
         </h1>
         <p className="text-muted-foreground">
-          Connect with friends to verify each other's challenges
+          Connect with friends to verify each other&apos;s challenges
         </p>
       </div>
 

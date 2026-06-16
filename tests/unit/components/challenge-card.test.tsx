@@ -1,12 +1,21 @@
 import { render, screen } from '@testing-library/react'
 import ChallengeCard from '@/components/challenge/challenge-card'
 
-// Mock next/link
-jest.mock('next/link', () => {
-  return ({ children, href }: any) => <a href={href}>{children}</a>
-})
+function MockLink({
+  children,
+  href,
+}: {
+  children: React.ReactNode
+  href: string
+}) {
+  return <a href={href}>{children}</a>
+}
 
-// Mock Prisma to avoid database connection in unit tests
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: MockLink,
+}))
+
 jest.mock('@/lib/db', () => ({
   prisma: {
     $on: jest.fn(),
@@ -19,16 +28,13 @@ describe('ChallengeCard', () => {
     id: 'test-challenge-1',
     title: 'Test Challenge',
     description: 'This is a test challenge description',
-    category: 'FITNESS' as const,
-    difficulty: 'MEDIUM' as const,
-    points: 150,
-    basePoints: 100,
-    status: 'ACTIVE' as const,
+    category: 'FITNESS',
+    difficulty: 3,
+    points: 30,
     createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-    creatorId: 'user-1',
     creator: {
       username: 'testuser',
+      name: 'Test User',
       avatarUrl: null,
     },
   }
@@ -45,7 +51,7 @@ describe('ChallengeCard', () => {
 
   it('should render challenge points', () => {
     render(<ChallengeCard challenge={mockChallenge} />)
-    expect(screen.getByText(/150/)).toBeInTheDocument()
+    expect(screen.getByText(/30/)).toBeInTheDocument()
   })
 
   it('should render creator username', () => {
@@ -55,13 +61,11 @@ describe('ChallengeCard', () => {
 
   it('should render category badge', () => {
     render(<ChallengeCard challenge={mockChallenge} />)
-    // Category should be visible somewhere in the component
-    expect(screen.getByText(/FITNESS/i)).toBeInTheDocument()
+    expect(screen.getByText('Fitness')).toBeInTheDocument()
   })
 
   it('should render difficulty', () => {
     render(<ChallengeCard challenge={mockChallenge} />)
-    // Difficulty should be visible somewhere in the component
-    expect(screen.getByText(/MEDIUM/i)).toBeInTheDocument()
+    expect(screen.getByText(/3\/5/)).toBeInTheDocument()
   })
 })
