@@ -56,9 +56,18 @@ enum ReportStatus {
   DISMISSED
 }
 
+enum AttemptReactionType {
+  FIRE
+  CLAP
+  LAUGH
+  WOW
+  STRONG
+}
+
 enum NotificationType {
   FRIEND_REQUEST
   FRIEND_ACCEPTED
+  VERIFICATION_REQUEST
   VERIFICATION_VOTE
   ATTEMPT_APPROVED
   ATTEMPT_REJECTED
@@ -73,6 +82,7 @@ model User {
   name              String?
   password          String
   avatarUrl         String?
+  isPrivate         Boolean        @default(false)
   totalPoints       Int            @default(0)
   role              UserRole       @default(USER)
   createdAt         DateTime       @default(now())
@@ -82,6 +92,9 @@ model User {
   challenges        Challenge[]
   attempts          Attempt[]
   verificationVotes VerificationVote[]
+  attemptComments   AttemptComment[]
+  attemptUpvotes    AttemptUpvote[]
+  attemptReactions  AttemptReaction[]
   pointsLedger      PointsLedger[]
   notifications     Notification[]
   reports           Report[]
@@ -177,6 +190,9 @@ model Attempt {
   user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   challenge       Challenge             @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   verificationVotes VerificationVote[]
+  comments          AttemptComment[]
+  upvotes           AttemptUpvote[]
+  reactions         AttemptReaction[]
   pointsLedger    PointsLedger?
   
   @@index([userId])
@@ -199,6 +215,50 @@ model VerificationVote {
   @@unique([attemptId, voterId])
   @@index([attemptId])
   @@index([voterId])
+}
+
+model AttemptComment {
+  id        String   @id @default(cuid())
+  attemptId String
+  userId    String
+  body      String   @db.VarChar(500)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model AttemptUpvote {
+  id        String   @id @default(cuid())
+  attemptId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, userId])
+  @@index([attemptId])
+}
+
+model AttemptReaction {
+  id        String              @id @default(cuid())
+  attemptId String
+  userId    String
+  type      AttemptReactionType
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, userId])
+  @@index([attemptId])
 }
 
 model Friendship {

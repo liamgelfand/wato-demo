@@ -25,6 +25,9 @@ export function CategoryFilter({ currentCategory }: CategoryFilterProps) {
     } else {
       params.set('category', value)
     }
+    if (!params.has('tab')) {
+      params.set('tab', 'challenges')
+    }
     const query = params.toString()
     router.push(query ? `/?${query}` : '/')
   }

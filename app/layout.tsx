@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata: Metadata = {
-  title: "Wato — Dare Your Friends",
+  title: "Wato",
   description: "Complete challenges, earn points, and compete with friends on Wato",
 };
 

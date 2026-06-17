@@ -76,7 +76,7 @@ export async function POST(
       userId: recipientId,
       type: 'MESSAGE',
       referenceType: 'MESSAGE',
-      referenceId: message.id,
+      referenceId: threadId,
       title: 'New message',
       body: `${session.user.username} sent you a message`,
     })

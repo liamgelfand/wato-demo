@@ -14,7 +14,7 @@ Please include:
 Wato implements:
 
 - **Authentication** — NextAuth with bcrypt password hashing
-- **Authorization** — Role-based access (user/admin), friend-scoped verification
+- **Authorization** — Centralized RBAC (`lib/permissions.ts`, `lib/auth-guards.ts`). See [RBAC.md](./RBAC.md).
 - **Input validation** — Zod schemas on all API inputs
 - **Content moderation** — Banned word filtering on challenges
 - **Rate limiting** — Per-endpoint limits on API routes

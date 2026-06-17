@@ -15,7 +15,7 @@ export const BADGE_DEFINITIONS: Badge[] = [
   { id: 'thousand_points', name: 'Point Master', description: 'Earn 1,000 total points', icon: '👑' },
   { id: 'first_created', name: 'Creator', description: 'Create your first challenge', icon: '✨' },
   { id: 'ten_friends', name: 'Social Butterfly', description: 'Have 10 friends', icon: '🦋' },
-  { id: 'ten_verifications', name: 'Trusted Judge', description: 'Verify 10 friend attempts', icon: '⚖️' },
+  { id: 'ten_verifications', name: 'Trusted Judge', description: 'Review 10 challenge submissions', icon: '⚖️' },
 ]
 
 export async function getUserBadges(userId: string): Promise<Badge[]> {

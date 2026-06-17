@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle, XCircle, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
+import { ProofDisplay } from '@/components/attempt/proof-display'
+import { hasPermission, Permissions } from '@/lib/permissions'
 
 interface AttemptDetails {
   id: string
@@ -32,7 +34,7 @@ export default function VerifyAttemptPage() {
   const router = useRouter()
   const params = useParams<{ id: string }>()
   const attemptId = params.id
-  const { status } = useSession()
+  const { status, data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
   const [attempt, setAttempt] = useState<AttemptDetails | null>(null)
@@ -46,9 +48,14 @@ export default function VerifyAttemptPage() {
     }
 
     if (status === 'authenticated') {
+      if (!hasPermission(session?.user?.role, Permissions.ATTEMPTS_VERIFY)) {
+        setError('Only moderators and admins can review submissions')
+        setFetching(false)
+        return
+      }
       fetchAttempt()
     }
-  }, [status])
+  }, [status, session?.user?.role])
 
   const fetchAttempt = async () => {
     try {
@@ -135,12 +142,8 @@ export default function VerifyAttemptPage() {
         </CardHeader>
         <CardContent>
           {attempt.proofUrl && (
-            <div className="mb-4">
-              {attempt.proofType?.startsWith('video/') ? (
-                <video src={attempt.proofUrl} controls className="w-full rounded-lg" />
-              ) : (
-                <img src={attempt.proofUrl} alt="Proof" className="w-full rounded-lg" />
-              )}
+            <div className="mb-4 rounded-lg overflow-hidden bg-muted">
+              <ProofDisplay proofUrl={attempt.proofUrl} proofType={attempt.proofType} />
             </div>
           )}
           <p className="text-sm text-muted-foreground">
@@ -151,9 +154,9 @@ export default function VerifyAttemptPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Cast Your Vote</CardTitle>
+          <CardTitle>Moderator Review</CardTitle>
           <CardDescription>
-            Does this submission successfully complete the challenge?
+            Approve or reject this submission on behalf of the Wato team
           </CardDescription>
         </CardHeader>
         <CardContent>

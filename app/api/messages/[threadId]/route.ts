@@ -70,6 +70,8 @@ export async function GET(
       },
     })
 
+    const messageIds = messages.map((message) => message.id)
+
     // Mark messages as read
     await prisma.message.updateMany({
       where: {
@@ -80,6 +82,22 @@ export async function GET(
       data: {
         readAt: new Date(),
       },
+    })
+
+    // Mark related message notifications as read
+    await prisma.notification.updateMany({
+      where: {
+        userId,
+        type: 'MESSAGE',
+        read: false,
+        OR: [
+          { referenceId: threadId },
+          ...(messageIds.length > 0
+            ? [{ referenceId: { in: messageIds } }]
+            : []),
+        ],
+      },
+      data: { read: true },
     })
 
     return NextResponse.json({ thread, messages })

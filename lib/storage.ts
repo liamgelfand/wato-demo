@@ -11,18 +11,30 @@ export interface StorageProvider {
 }
 
 class LocalStorageProvider implements StorageProvider {
-  private uploadsDir = path.join(process.cwd(), 'public', 'uploads')
+  private uploadsDir =
+    process.env.UPLOADS_DIR?.trim() || path.join(process.cwd(), 'public', 'uploads')
 
   async uploadFile(buffer: Buffer, filePath: string, contentType: string): Promise<string> {
+    await this.ensureUploadsDir()
+
     const fullPath = path.join(this.uploadsDir, filePath)
     const dir = path.dirname(fullPath)
-    
-    // Ensure directory exists
+
     if (!existsSync(dir)) {
       await mkdir(dir, { recursive: true })
     }
-    
-    await writeFile(fullPath, buffer)
+
+    try {
+      await writeFile(fullPath, buffer)
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code
+      if (code === 'EACCES' || code === 'EPERM') {
+        throw new Error(
+          `Cannot write to uploads directory (${this.uploadsDir}). Check filesystem permissions.`
+        )
+      }
+      throw error
+    }
     
     // Return public URL path
     return `/uploads/${filePath}`
@@ -44,6 +56,12 @@ class LocalStorageProvider implements StorageProvider {
   async getSignedUrl(filePath: string, expiresIn: number): Promise<string> {
     // For local storage, just return the public URL (no signed URLs needed)
     return `/uploads/${filePath}`
+  }
+
+  private async ensureUploadsDir(): Promise<void> {
+    if (!existsSync(this.uploadsDir)) {
+      await mkdir(this.uploadsDir, { recursive: true })
+    }
   }
 }
 

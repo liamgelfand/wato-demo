@@ -5,6 +5,7 @@ import { getUserBadges } from '@/lib/badges'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { PrivacyToggle } from '@/components/profile/privacy-toggle'
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -15,7 +16,14 @@ export default async function ProfilePage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    include: {
+    select: {
+      id: true,
+      email: true,
+      username: true,
+      name: true,
+      avatarUrl: true,
+      isPrivate: true,
+      totalPoints: true,
       attempts: {
         where: { status: 'APPROVED' },
         orderBy: { createdAt: 'desc' },
@@ -74,6 +82,15 @@ export default async function ProfilePage() {
               <div className="text-sm text-muted-foreground">Badges</div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Privacy</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PrivacyToggle isPrivate={user.isPrivate} />
         </CardContent>
       </Card>
 

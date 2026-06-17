@@ -16,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { hasPermission, Permissions } from '@/lib/permissions'
 
 export function Navbar() {
   const { data: session, status } = useSession()
@@ -147,13 +148,15 @@ export function Navbar() {
                       Messages
                     </Link>
                   </DropdownMenuItem>
-                  {session.user.role === 'ADMIN' && (
+                  {hasPermission(session.user.role, Permissions.ATTEMPTS_VERIFY) && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link href="/admin" className="cursor-pointer">
                           <Shield className="mr-2 h-4 w-4" />
-                          Admin Dashboard
+                          {hasPermission(session.user.role, Permissions.REPORTS_VIEW)
+                            ? 'Admin Dashboard'
+                            : 'Review Dashboard'}
                         </Link>
                       </DropdownMenuItem>
                     </>

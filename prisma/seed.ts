@@ -27,7 +27,7 @@ async function main() {
         username: `demo${i}`,
         name: `Demo User ${i}`,
         password,
-        role: i === 1 ? 'ADMIN' : 'USER',
+        role: i === 1 ? 'ADMIN' : i === 2 ? 'MODERATOR' : 'USER',
       },
     })
     users.push(user)
@@ -225,7 +225,7 @@ async function main() {
   console.log('🎉 Seed completed successfully!')
   console.log('\n📝 Test accounts:')
   console.log('Email: demo1@test.com (ADMIN)')
-  console.log('Email: demo2@test.com')
+  console.log('Email: demo2@test.com (MODERATOR)')
   console.log('Email: demo3@test.com')
   console.log('Email: demo4@test.com')
   console.log('Email: demo5@test.com')

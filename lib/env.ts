@@ -9,9 +9,10 @@ const envSchema = z.object({
   // Database
   DATABASE_URL: z.string().min(1),  // Removed .url() check as it fails on some valid URLs
 
-  // NextAuth
+  // Auth
   NEXTAUTH_SECRET: z.string().min(32, 'NEXTAUTH_SECRET must be at least 32 characters'),
-  NEXTAUTH_URL: z.string().min(1),  // Relaxed validation for flexibility
+  NEXTAUTH_URL: z.string().min(1),
+  AUTH_TRUST_HOST: z.string().optional(),  // Relaxed validation for flexibility
 
   // OAuth (optional)
   GOOGLE_CLIENT_ID: z.string().optional(),

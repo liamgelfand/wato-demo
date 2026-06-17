@@ -6,11 +6,19 @@ Social challenge app — create dares, submit proof, earn points with friends.
 
 ```bash
 cp .env.example .env
+make setup          # install, start DB, migrate, seed
+make dev            # hot reload → http://localhost:3000
+```
+
+Or without Make:
+
+```bash
+cp .env.example .env
 npm install
-npm run docker:db          # start Postgres only
+npm run docker:db
 npm run db:migrate
 npm run db:seed
-npm run dev                # app on host with hot reload → http://localhost:3000
+npm run dev
 ```
 
 Demo login: `demo1@test.com` / `password123`
@@ -19,7 +27,7 @@ Demo login: `demo1@test.com` / `password123`
 
 ```bash
 cp .env.example .env       # set NEXTAUTH_SECRET
-npm run docker:up          # builds app image + starts db + app
+make docker-up             # or: npm run docker:up
 ```
 
 ## Project structure
@@ -32,7 +40,7 @@ wato/
 ├── prisma/           # database schema & migrations
 ├── config/           # jest, eslint
 ├── tests/            # unit, integration, e2e
-├── docker/           # container entrypoint
+├── docker/           # Docker-related assets
 ├── docs/             # documentation
 ├── Dockerfile        # production image
 └── docker-compose.yml
@@ -42,9 +50,9 @@ wato/
 
 | Command | Purpose |
 |---------|---------|
-| `npm run dev` | Dev server (use with `docker:db`) |
-| `npm run docker:db` | Postgres for local dev |
-| `npm run docker:up` | Full app stack in containers |
+| `make dev` | Dev server (starts DB, you run app with hot reload) |
+| `make docker-up` | Full app stack in containers |
+| `make setup` | First-time install + DB + migrate + seed |
 | `npm run test:unit` | Unit tests |
 | `npm run build` | Production build |
 

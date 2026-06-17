@@ -78,11 +78,15 @@ const gracefulShutdown = async () => {
   console.log('Database connections closed')
 }
 
-// Handle shutdown signals (skip in tests to avoid Jest teardown noise)
-if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'test') {
+// Handle shutdown signals (skip during tests and Next.js build)
+const shouldRegisterShutdown =
+  typeof process !== 'undefined' &&
+  process.env.NODE_ENV !== 'test' &&
+  process.env.NEXT_PHASE !== 'phase-production-build'
+
+if (shouldRegisterShutdown) {
   process.on('SIGINT', gracefulShutdown)
   process.on('SIGTERM', gracefulShutdown)
-  process.on('beforeExit', gracefulShutdown)
 }
 
 // Health check utility

@@ -59,7 +59,7 @@ These files must stay at the root because Next.js, Prisma, Docker, or their CLIs
 | `components/` | React UI |
 | `lib/` | Business logic |
 | `prisma/` | Schema and migrations |
-| `docker/` | Container entrypoint script |
+| `docker/` | Docker-related assets |
 | `scripts/db/` | Backup/restore helpers |
 
 ## Removed clutter

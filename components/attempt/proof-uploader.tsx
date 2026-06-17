@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Upload, X, Image as ImageIcon, Video, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { resolveProofMimeType } from '@/lib/proof-files'
 
 interface ProofUploaderProps {
   attemptId: string
@@ -20,11 +21,8 @@ export function ProofUploader({ attemptId }: ProofUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const processFile = useCallback((selectedFile: File) => {
-    const validTypes = [
-      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-      'video/mp4', 'video/quicktime', 'video/webm',
-    ]
-    if (!validTypes.includes(selectedFile.type)) {
+    const mimeType = resolveProofMimeType(selectedFile.name, selectedFile.type)
+    if (!mimeType) {
       toast.error('Invalid file type. Please upload an image or video.')
       return
     }
@@ -70,7 +68,7 @@ export function ProofUploader({ attemptId }: ProofUploaderProps) {
         throw new Error(data.error || 'Upload failed')
       }
 
-      toast.success('Proof uploaded! Your attempt is now pending verification.')
+      toast.success('Proof uploaded! Waiting for moderator review.')
       router.refresh()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Upload failed')

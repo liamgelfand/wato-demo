@@ -68,18 +68,9 @@ const nextConfig = {
   },
 
   async redirects() {
-    const redirects = [
+    return [
       { source: '/signup', destination: '/register', permanent: true },
     ]
-    if (process.env.NODE_ENV === 'production') {
-      redirects.push({
-        source: '/:path*',
-        has: [{ type: 'header', key: 'x-forwarded-proto', value: 'http' }],
-        destination: 'https://:host/:path*',
-        permanent: true,
-      })
-    }
-    return redirects
   },
 
   // Compiler options for better performance

@@ -48,6 +48,7 @@ export default function ThreadPage() {
   const [messages, setMessages] = useState<ThreadMessage[]>([])
   const [messageBody, setMessageBody] = useState('')
   const [loading, setLoading] = useState(false)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -74,12 +75,22 @@ export default function ThreadPage() {
   const fetchThread = async () => {
     try {
       const response = await fetch(`/api/messages/${threadId}`)
-      if (!response.ok) throw new Error('Failed to fetch thread')
+      if (!response.ok) {
+        setFetchError(
+          response.status === 404
+            ? 'Conversation not found.'
+            : 'Could not load this conversation.'
+        )
+        setThread(null)
+        return
+      }
       const data = await response.json()
+      setFetchError(null)
       setThread(data.thread)
       setMessages(data.messages)
-    } catch (error) {
-      console.error('Failed to fetch thread:', error)
+    } catch {
+      setFetchError('Could not load this conversation.')
+      setThread(null)
     }
   }
 
@@ -107,10 +118,21 @@ export default function ThreadPage() {
     }
   }
 
-  if (!thread || !session) {
+  if (status === 'loading' || (status === 'authenticated' && !thread && !fetchError)) {
     return (
       <div className="container mx-auto max-w-4xl p-4 flex items-center justify-center min-h-[50vh]">
         <p>Loading...</p>
+      </div>
+    )
+  }
+
+  if (fetchError || !thread || !session) {
+    return (
+      <div className="container mx-auto max-w-4xl p-4 flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <p className="text-muted-foreground">{fetchError ?? 'Conversation not found.'}</p>
+        <Button variant="outline" onClick={() => router.push('/messages')}>
+          Back to messages
+        </Button>
       </div>
     )
   }

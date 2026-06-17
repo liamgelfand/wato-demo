@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { resolveProofMimeType } from '@/lib/proof-files'
 
 // Auth schemas
 export const registerSchema = z.object({
@@ -52,10 +53,7 @@ export type CreateAttemptInput = z.infer<typeof createAttemptSchema>
 export const uploadProofSchema = z.object({
   attemptId: z.string().cuid(),
   file: z.instanceof(File).refine(
-    (file) => {
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm']
-      return validTypes.includes(file.type)
-    },
+    (file) => resolveProofMimeType(file.name, file.type) !== null,
     'Invalid file type. Only images (JPG, PNG, GIF, WebP) and videos (MP4, MOV, WebM) are allowed'
   ).refine(
     (file) => file.size <= 50 * 1024 * 1024, // 50MB
@@ -71,6 +69,14 @@ export const submitVerificationVoteSchema = z.object({
 })
 
 export type SubmitVerificationVoteInput = z.infer<typeof submitVerificationVoteSchema>
+
+export const attemptCommentSchema = z.object({
+  body: z.string().min(1, 'Comment cannot be empty').max(500, 'Comment is too long'),
+})
+
+export const attemptReactionSchema = z.object({
+  type: z.enum(['FIRE', 'CLAP', 'LAUGH', 'WOW', 'STRONG']),
+})
 
 // Friend schemas
 export const sendFriendRequestSchema = z.object({

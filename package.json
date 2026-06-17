@@ -13,6 +13,7 @@
     "lint": "eslint --config config/eslint.config.mjs",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "test": "jest --config config/jest.config.js --watch",
@@ -24,7 +25,7 @@
     "test:all": "npm run test:ci && npm run test:e2e",
     "docker:db": "docker compose up db -d",
     "docker:db:down": "docker compose down",
-    "docker:up": "docker compose --profile prod up -d --build",
+    "docker:up": "docker compose up db -d --wait && npm run db:migrate:deploy && docker compose --profile prod up -d --build app",
     "docker:down": "docker compose --profile prod down",
     "docker:logs": "docker compose logs -f app",
     "docker:build": "docker compose build app"
