@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import type { ChallengeCategory } from '@prisma/client'
+import { excludeTestChallengesWhere } from '@/lib/public-challenges'
 
 export interface TrendingChallenge {
   id: string
@@ -25,7 +26,7 @@ export async function getTrendingChallenges(limit = 20): Promise<TrendingChallen
     where: {
       status: 'APPROVED',
       updatedAt: { gte: oneWeekAgo },
-      challenge: { status: 'ACTIVE' },
+      challenge: { status: 'ACTIVE', ...excludeTestChallengesWhere },
     },
     _count: { id: true },
   })
@@ -37,7 +38,7 @@ export async function getTrendingChallenges(limit = 20): Promise<TrendingChallen
 
   if (sorted.length === 0) {
     const recent = await prisma.challenge.findMany({
-      where: { status: 'ACTIVE' },
+      where: { status: 'ACTIVE', ...excludeTestChallengesWhere },
       include: {
         creator: { select: { username: true, name: true, avatarUrl: true } },
       },
@@ -57,7 +58,11 @@ export async function getTrendingChallenges(limit = 20): Promise<TrendingChallen
   }
 
   const challenges = await prisma.challenge.findMany({
-    where: { id: { in: sorted.map((s) => s.challengeId) }, status: 'ACTIVE' },
+    where: {
+      id: { in: sorted.map((s) => s.challengeId) },
+      status: 'ACTIVE',
+      ...excludeTestChallengesWhere,
+    },
     include: {
       creator: { select: { username: true, name: true, avatarUrl: true } },
     },

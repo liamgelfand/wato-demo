@@ -165,7 +165,7 @@ export default async function ChallengePage({ params }: PageProps) {
                 <p>
                   {challenge.aiReviewNote === 'AI review in progress…'
                     ? isCreator
-                      ? 'AI is reviewing your challenge now. This usually takes a few seconds — refresh to see the result.'
+                      ? 'AI is reviewing your challenge now.'
                       : 'This challenge is being reviewed before it goes live.'
                     : isCreator
                       ? 'Your challenge is waiting for moderator approval before others can attempt it.'
@@ -191,7 +191,17 @@ export default async function ChallengePage({ params }: PageProps) {
 
           {challenge.status === 'REJECTED' && isCreator && (
             <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm">
-              This challenge was not approved. Edit and resubmit from Create if you&apos;d like to try again.
+              <p className="font-medium text-destructive mb-1">
+                This challenge was not approved.
+              </p>
+              {challenge.aiReviewNote && (
+                <p>
+                  <span className="font-medium">Reason:</span> {challenge.aiReviewNote}
+                </p>
+              )}
+              <p className="mt-2 text-muted-foreground">
+                Edit and resubmit from Create if you&apos;d like to try again.
+              </p>
             </div>
           )}
 

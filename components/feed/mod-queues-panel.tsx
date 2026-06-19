@@ -21,7 +21,10 @@ export async function ModQueuesPanel({ userId }: ModQueuesPanelProps) {
       take: 10,
     }),
     prisma.challenge.findMany({
-      where: { status: 'PENDING_REVIEW' },
+      where: {
+        status: 'PENDING_REVIEW',
+        creatorId: { not: userId },
+      },
       include: {
         creator: { select: { username: true, name: true, avatarUrl: true } },
       },

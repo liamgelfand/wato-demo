@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getApiUser } from '@/lib/api-auth'
 import { getFriendIds } from '@/lib/friends'
 import { prisma } from '@/lib/db'
+import { excludeTestChallengesWhere } from '@/lib/public-challenges'
 
 export async function GET(request: Request) {
   const user = await getApiUser(request)
@@ -32,6 +33,7 @@ export async function GET(request: Request) {
     prisma.challenge.findMany({
       where: {
         status: 'ACTIVE',
+        ...excludeTestChallengesWhere,
         ...(category !== 'ALL' && { category: category as never }),
       },
       include: { creator: { select: { username: true, name: true, avatarUrl: true } } },

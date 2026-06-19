@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getFriendIds } from '@/lib/friends'
+import { excludeTestChallengesWhere } from '@/lib/public-challenges'
 import { ChallengeCard } from '@/components/challenge/challenge-card'
 import { CategoryFilter } from '@/components/challenge/category-filter'
 import { FriendsActivityFeed } from '@/components/feed/friends-activity-feed'
@@ -39,6 +40,7 @@ async function ChallengesPanel({
     prisma.challenge.findMany({
       where: {
         status: 'ACTIVE',
+        ...excludeTestChallengesWhere,
         ...(category !== 'ALL' && {
           category: category as 'FITNESS' | 'SKILL' | 'CREATIVITY' | 'ADVENTURE' | 'FUNNY',
         }),

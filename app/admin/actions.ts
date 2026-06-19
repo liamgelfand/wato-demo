@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { Permissions } from '@/lib/permissions'
-import { requireActionPermission } from '@/lib/auth-guards'
+import { requireActionPermission, AuthError } from '@/lib/auth-guards'
 
 export async function resolveReportAction(
   reportId: string,
@@ -53,7 +53,15 @@ export async function rejectAttemptAction(attemptId: string): Promise<void> {
 }
 
 export async function approveChallengeAction(challengeId: string): Promise<void> {
-  await requireActionPermission(Permissions.CHALLENGES_APPROVE)
+  const session = await requireActionPermission(Permissions.CHALLENGES_APPROVE)
+  const challenge = await prisma.challenge.findUnique({
+    where: { id: challengeId },
+    select: { creatorId: true },
+  })
+  if (!challenge) return
+  if (challenge.creatorId === session.user.id) {
+    throw new AuthError('You cannot approve your own challenge', 403)
+  }
   await prisma.challenge.update({
     where: { id: challengeId },
     data: { status: 'ACTIVE' },
@@ -64,7 +72,15 @@ export async function approveChallengeAction(challengeId: string): Promise<void>
 }
 
 export async function rejectChallengeAction(challengeId: string): Promise<void> {
-  await requireActionPermission(Permissions.CHALLENGES_APPROVE)
+  const session = await requireActionPermission(Permissions.CHALLENGES_APPROVE)
+  const challenge = await prisma.challenge.findUnique({
+    where: { id: challengeId },
+    select: { creatorId: true },
+  })
+  if (!challenge) return
+  if (challenge.creatorId === session.user.id) {
+    throw new AuthError('You cannot reject your own challenge', 403)
+  }
   await prisma.challenge.update({
     where: { id: challengeId },
     data: { status: 'REJECTED' },

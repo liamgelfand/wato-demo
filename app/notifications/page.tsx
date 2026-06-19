@@ -7,6 +7,7 @@ import { Bell, CheckCheck } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { resolveNotificationHref } from '@/lib/notification-links'
+import { pruneSelfChallengeReviewNotifications } from '@/lib/notifications'
 import {
   markAllNotificationsReadAction,
   openNotificationAction,
@@ -20,6 +21,8 @@ export default async function NotificationsPage() {
   }
 
   const userId = session.user.id
+
+  await pruneSelfChallengeReviewNotifications(userId)
 
   const notifications = await prisma.notification.findMany({
     where: { userId },

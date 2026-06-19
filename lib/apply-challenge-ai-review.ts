@@ -39,7 +39,9 @@ export async function applyChallengeAiReview(
     return
   }
 
-  const moderatorIds = await getModeratorUserIds()
+  const moderatorIds = (await getModeratorUserIds()).filter((id) => id !== creator.id)
+  if (moderatorIds.length === 0) return
+
   await Promise.all(
     moderatorIds.map((moderatorId) =>
       createNotification({

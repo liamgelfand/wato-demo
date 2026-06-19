@@ -55,7 +55,10 @@ export default async function AdminPage() {
 
   const pendingChallenges = canApproveChallenges
     ? await prisma.challenge.findMany({
-        where: { status: 'PENDING_REVIEW' },
+        where: {
+          status: 'PENDING_REVIEW',
+          creatorId: { not: userId },
+        },
         include: {
           creator: {
             select: { username: true, name: true },

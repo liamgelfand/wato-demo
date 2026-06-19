@@ -8,10 +8,23 @@ const UNSAFE_KEYWORDS = ['alcohol', 'drunk', 'weapon', 'gun', 'drug', 'suicide',
 
 const REVIEW_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS ?? 90_000)
 
+const DEFAULT_REJECTION_REASON = 'Content did not meet community guidelines.'
+
 function isAutoApproveEnabled(): boolean {
   return (
     process.env.OLLAMA_AUTO_APPROVE !== 'false' && process.env.OLLAMA_AUTO_APPROVE !== '0'
   )
+}
+
+function rejectionReason(reason: string | undefined): string {
+  const trimmed = reason?.trim()
+  return trimmed && trimmed.length > 0 ? trimmed : DEFAULT_REJECTION_REASON
+}
+
+function keywordRejectionReason(title: string, description: string): string | null {
+  const lower = `${title} ${description}`.toLowerCase()
+  const match = UNSAFE_KEYWORDS.find((k) => lower.includes(k))
+  return match ? `Contains restricted content related to "${match}".` : null
 }
 
 export async function reviewChallengeWithAI(
@@ -22,7 +35,14 @@ export async function reviewChallengeWithAI(
   if (!ollamaUrl) return null
 
   const prompt = `You are a content moderator for a family-friendly challenge app.
-Review this challenge and reply with JSON only: {"safe":true|false,"reason":"..."}
+Review this challenge and respond with JSON only (no markdown, no extra text).
+
+Rules:
+- If the challenge is NOT appropriate: {"safe":false,"reason":"A clear, specific explanation of why it was rejected"}
+- If the challenge IS appropriate: {"safe":true,"reason":"Brief note on why it is acceptable"}
+
+The "reason" field is required in both cases. For rejections, explain what policy the content violates.
+
 Title: ${title}
 Description: ${description}`
 
@@ -48,25 +68,39 @@ Description: ${description}`
     const data = (await response.json()) as { response?: string }
     const parsed = JSON.parse(data.response ?? '{}') as { safe?: boolean; reason?: string }
     const safe = parsed.safe !== false
-    const autoApprove = safe && isAutoApproveEnabled()
+
+    if (!safe) {
+      return {
+        safe: false,
+        note: rejectionReason(parsed.reason),
+        autoApprove: false,
+      }
+    }
+
+    const autoApprove = isAutoApproveEnabled()
     return {
-      safe,
-      note: parsed.reason ?? (safe ? 'AI pre-check passed' : 'Flagged by AI'),
+      safe: true,
+      note: parsed.reason?.trim() || 'AI pre-check passed',
       autoApprove,
     }
   } catch (error) {
-    const lower = `${title} ${description}`.toLowerCase()
-    const flagged = UNSAFE_KEYWORDS.some((k) => lower.includes(k))
+    const keywordReason = keywordRejectionReason(title, description)
     const timedOut = error instanceof Error && error.name === 'TimeoutError'
     console.error('Ollama review failed:', error)
 
+    if (keywordReason) {
+      return {
+        safe: false,
+        note: keywordReason,
+        autoApprove: false,
+      }
+    }
+
     return {
-      safe: !flagged,
-      note: flagged
-        ? 'Keyword filter flagged content'
-        : timedOut
-          ? 'AI review timed out (model may still be loading). A moderator will review this challenge.'
-          : 'AI review failed to connect. A moderator will review this challenge.',
+      safe: true,
+      note: timedOut
+        ? 'AI review timed out (model may still be loading). A moderator will review this challenge.'
+        : 'AI review failed to connect. A moderator will review this challenge.',
       autoApprove: false,
     }
   }

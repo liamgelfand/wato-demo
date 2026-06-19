@@ -13,6 +13,9 @@ const eslintConfig = defineConfig([
     "coverage/**",
     "config/jest.config.js",
     "config/jest.setup.js",
+    "mobile/**",
+    "playwright-report/**",
+    "test-results/**",
   ]),
   {
     files: ["tests/**/*.{ts,tsx,js}", "tests/playwright.config.ts"],

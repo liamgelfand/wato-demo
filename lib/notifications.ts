@@ -57,7 +57,25 @@ export async function markAllNotificationsRead(userId: string): Promise<void> {
   })
 }
 
+export async function pruneSelfChallengeReviewNotifications(userId: string): Promise<void> {
+  const ownChallenges = await prisma.challenge.findMany({
+    where: { creatorId: userId },
+    select: { id: true },
+  })
+  const ownIds = ownChallenges.map((c) => c.id)
+  if (ownIds.length === 0) return
+
+  await prisma.notification.deleteMany({
+    where: {
+      userId,
+      type: 'CHALLENGE_REVIEW_REQUEST',
+      referenceId: { in: ownIds },
+    },
+  })
+}
+
 export async function getUnreadCount(userId: string): Promise<number> {
+  await pruneSelfChallengeReviewNotifications(userId)
   return await prisma.notification.count({
     where: {
       userId,
