@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getApiUser } from '@/lib/api-auth'
 import { prisma } from '@/lib/db'
 import { sendMessageSchema } from '@/lib/validations'
 import { createNotification } from '@/lib/notifications'
@@ -10,16 +10,16 @@ export async function POST(
 ) {
   try {
     const { threadId: routeThreadId } = await params
-    const session = await auth()
+    const user = await getApiUser(request)
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    const userId = session.user.id
+    const userId = user.id
     const body = await request.json()
     
     const validation = sendMessageSchema.safeParse({
@@ -78,7 +78,7 @@ export async function POST(
       referenceType: 'MESSAGE',
       referenceId: threadId,
       title: 'New message',
-      body: `${session.user.username} sent you a message`,
+      body: `${user.username} sent you a message`,
     })
 
     return NextResponse.json(message, { status: 201 })

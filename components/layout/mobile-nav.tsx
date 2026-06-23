@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, PlusCircle, Trophy, Users, Bell, MessageSquare } from 'lucide-react'
+import { Home, PlusCircle, Compass, Bell, MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function MobileNav() {
@@ -16,11 +16,10 @@ export function MobileNav() {
 
   const navItems = [
     { href: '/', label: 'Feed', icon: Home },
+    { href: '/explore', label: 'Explore', icon: Compass },
+    { href: '/messages', label: 'Messages', icon: MessageSquare },
     { href: '/create', label: 'Create', icon: PlusCircle },
-    { href: '/leaderboard', label: 'Ranks', icon: Trophy },
-    { href: '/messages', label: 'Chat', icon: MessageSquare },
     { href: '/notifications', label: 'Alerts', icon: Bell },
-    { href: '/friends', label: 'Friends', icon: Users },
   ]
 
   return (
@@ -30,7 +29,8 @@ export function MobileNav() {
           const Icon = item.icon
           const isActive =
             pathname === item.href ||
-            (item.href === '/messages' && pathname.startsWith('/messages'))
+            (item.href === '/messages' && pathname.startsWith('/messages')) ||
+            (item.href === '/explore' && pathname.startsWith('/explore'))
           return (
             <Link
               key={item.href}

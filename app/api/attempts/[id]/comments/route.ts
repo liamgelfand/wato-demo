@@ -31,11 +31,21 @@ export async function POST(
       )
     }
 
+    if (validation.data.parentId) {
+      const parent = await prisma.attemptComment.findFirst({
+        where: { id: validation.data.parentId, attemptId, parentId: null },
+      })
+      if (!parent) {
+        return NextResponse.json({ error: 'Invalid reply target' }, { status: 400 })
+      }
+    }
+
     const comment = await prisma.attemptComment.create({
       data: {
         attemptId,
         userId: user.id,
         body: validation.data.body,
+        parentId: validation.data.parentId,
       },
       include: {
         user: { select: { username: true, name: true, avatarUrl: true } },

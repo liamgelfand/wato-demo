@@ -73,6 +73,7 @@ export type SubmitVerificationVoteInput = z.infer<typeof submitVerificationVoteS
 
 export const attemptCommentSchema = z.object({
   body: z.string().min(1, 'Comment cannot be empty').max(500, 'Comment is too long'),
+  parentId: z.string().cuid().optional(),
 })
 
 export const attemptReactionSchema = z.object({

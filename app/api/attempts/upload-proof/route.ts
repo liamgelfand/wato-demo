@@ -55,8 +55,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Validate file size (50MB)
-    if (file.size > 50 * 1024 * 1024) {
+    const buffer = Buffer.from(await file.arrayBuffer())
+
+    if (buffer.length > 50 * 1024 * 1024) {
       return NextResponse.json(
         { error: 'File too large. Maximum size is 50MB' },
         { status: 400 }
@@ -64,7 +65,6 @@ export async function POST(request: Request) {
     }
 
     // Upload file
-    const buffer = Buffer.from(await file.arrayBuffer())
     const ext = path.extname(file.name).toLowerCase()
     const filePath = `${attempt.userId}/${attemptId}${ext}`
     
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
         proofType: mimeType,
         proofMetadata: {
           originalName: file.name,
-          size: file.size,
+          size: buffer.length,
           mimeType,
         },
         status: 'PENDING',

@@ -24,6 +24,14 @@ export async function middleware(request: NextRequest) {
       return withCors(request, NextResponse.next())
     }
 
+    const skipRateLimit =
+      process.env.DISABLE_RATE_LIMIT === 'true' ||
+      process.env.NODE_ENV === 'development'
+
+    if (skipRateLimit) {
+      return withCors(request, NextResponse.next())
+    }
+
     const identifier =
       request.headers.get('x-forwarded-for') ||
       request.headers.get('x-real-ip') ||

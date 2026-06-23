@@ -23,16 +23,20 @@ interface FriendsActivityFeedProps {
       points: number
     }
   }>
+  emptyTitle?: string
+  emptyDescription?: string
 }
 
-export function FriendsActivityFeed({ attempts }: FriendsActivityFeedProps) {
+export function FriendsActivityFeed({
+  attempts,
+  emptyTitle = 'No activity yet',
+  emptyDescription = 'When friends and other users complete challenges, their proof posts will show up here.',
+}: FriendsActivityFeedProps) {
   if (attempts.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground mb-2">No friend activity yet.</p>
-        <p className="text-sm text-muted-foreground">
-          When friends complete challenges, their proof posts will show up here.
-        </p>
+        <p className="text-muted-foreground mb-2">{emptyTitle}</p>
+        <p className="text-sm text-muted-foreground">{emptyDescription}</p>
       </div>
     )
   }

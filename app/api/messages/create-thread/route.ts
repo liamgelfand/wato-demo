@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getApiUser } from '@/lib/api-auth'
 import { prisma } from '@/lib/db'
 import { createThreadSchema } from '@/lib/validations'
 
 export async function POST(request: Request) {
   try {
-    const session = await auth()
+    const user = await getApiUser(request)
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     }
 
     const { friendId } = validation.data
-    const userId = session.user.id
+    const userId = user.id
 
     if (friendId === userId) {
       return NextResponse.json({ error: 'Cannot message yourself' }, { status: 400 })

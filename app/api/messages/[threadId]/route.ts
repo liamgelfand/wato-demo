@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getApiUser } from '@/lib/api-auth'
 import { prisma } from '@/lib/db'
 
 export async function GET(
@@ -8,16 +8,16 @@ export async function GET(
 ) {
   try {
     const { threadId } = await params
-    const session = await auth()
+    const user = await getApiUser(request)
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    const userId = session.user.id
+    const userId = user.id
 
     const thread = await prisma.messageThread.findUnique({
       where: { id: threadId },
@@ -100,7 +100,7 @@ export async function GET(
       data: { read: true },
     })
 
-    return NextResponse.json({ thread, messages })
+    return NextResponse.json({ thread, messages, viewerId: userId })
   } catch (error) {
     console.error('Fetch thread error:', error)
     return NextResponse.json(

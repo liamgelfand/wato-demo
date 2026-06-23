@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { router } from 'expo-router'
 import {
   CATEGORY_LABELS,
   CATEGORY_STYLES,
@@ -16,11 +17,28 @@ export type ChallengeItem = {
   creator?: { username: string; name: string | null }
 }
 
-export function ChallengeCard({ challenge }: { challenge: ChallengeItem }) {
+type ChallengeCardProps = {
+  challenge: ChallengeItem
+  onPress?: () => void
+}
+
+export function ChallengeCard({ challenge, onPress }: ChallengeCardProps) {
   const cat = CATEGORY_STYLES[challenge.category] ?? CATEGORY_STYLES.FUNNY
 
+  const open = () => {
+    if (onPress) {
+      onPress()
+      return
+    }
+    router.push(`/challenge/${challenge.id}`)
+  }
+
   return (
-    <View style={styles.card}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={open}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+    >
       <View style={styles.header}>
         <View style={[styles.badge, { backgroundColor: cat.bg }]}>
           <Text style={[styles.badgeText, { color: cat.text }]}>
@@ -34,11 +52,9 @@ export function ChallengeCard({ challenge }: { challenge: ChallengeItem }) {
         {challenge.description}
       </Text>
       {challenge.creator && (
-        <Text style={styles.creator}>
-          by @{challenge.creator.username}
-        </Text>
+        <Text style={styles.creator}>by @{challenge.creator.username}</Text>
       )}
-    </View>
+    </Pressable>
   )
 }
 
@@ -50,6 +66,10 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: spacing.md,
     marginBottom: spacing.sm,
+  },
+  pressed: {
+    opacity: 0.92,
+    transform: [{ scale: 0.995 }],
   },
   header: {
     flexDirection: 'row',

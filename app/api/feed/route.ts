@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getApiUser } from '@/lib/api-auth'
 import { getFriendIds } from '@/lib/friends'
+import { getFeedActivity } from '@/lib/feed-activity'
 import { prisma } from '@/lib/db'
 import { excludeTestChallengesWhere } from '@/lib/public-challenges'
 
@@ -9,15 +10,26 @@ export async function GET(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
-  const tab = searchParams.get('tab') === 'friends' ? 'friends' : 'challenges'
+  const tabParam = searchParams.get('tab')
+  const tab =
+    tabParam === 'challenges' ? 'challenges' : tabParam === 'friends' ? 'friends' : 'activity'
   const category = searchParams.get('category') ?? 'ALL'
+
+  if (tab === 'activity') {
+    const activity = await getFeedActivity(user.id)
+    return NextResponse.json({ tab, activity })
+  }
 
   if (tab === 'friends') {
     const friendIds = await getFriendIds(user.id)
     const friendsActivity =
       friendIds.length > 0
         ? await prisma.attempt.findMany({
-            where: { userId: { in: friendIds }, status: 'APPROVED' },
+            where: {
+              userId: { in: friendIds },
+              status: 'APPROVED',
+              challenge: { status: 'ACTIVE', ...excludeTestChallengesWhere },
+            },
             include: {
               user: { select: { username: true, name: true, avatarUrl: true } },
               challenge: { select: { id: true, title: true, points: true } },

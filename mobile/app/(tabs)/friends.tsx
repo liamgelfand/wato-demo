@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native'
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native'
+import { router } from 'expo-router'
 import { Screen } from '../../components/ui/screen'
 import { TabHeader } from '../../components/ui/tab-header'
 import { AuthLoading, useAuthToken } from '../../hooks/use-auth-token'
@@ -9,7 +10,7 @@ import { colors, radius, spacing, typography } from '../../constants/theme'
 type FriendActivity = {
   id: string
   user: { username: string; name: string | null }
-  challenge: { title: string; points: number }
+  challenge: { id: string; title: string; points: number }
 }
 
 export default function FriendsTab() {
@@ -59,13 +60,16 @@ export default function FriendsTab() {
           </View>
         }
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <Pressable
+            onPress={() => router.push(`/challenge/${item.challenge.id}`)}
+            style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+          >
             <Text style={styles.name}>{item.user.name ?? item.user.username}</Text>
             <Text style={styles.action}>
               completed <Text style={styles.challenge}>{item.challenge.title}</Text>
             </Text>
             <Text style={styles.points}>+{item.challenge.points} pts</Text>
-          </View>
+          </Pressable>
         )}
       />
     </Screen>
@@ -84,6 +88,9 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: spacing.md,
     marginBottom: spacing.sm,
+  },
+  cardPressed: {
+    opacity: 0.92,
   },
   name: { ...typography.label, color: colors.foreground },
   action: { ...typography.caption, color: colors.mutedForeground, marginTop: 4 },

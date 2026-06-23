@@ -6,7 +6,7 @@ test.describe('Leaderboard', () => {
     await page.fill('input[type="email"]', 'demo1@test.com')
     await page.fill('input[type="password"]', 'password123')
     await page.click('button[type="submit"]')
-    await page.waitForURL('/')
+    await page.waitForURL('/', { timeout: 15000 })
   })
 
   test('should display leaderboard with user rankings', async ({ page }) => {

@@ -98,6 +98,7 @@ model User {
   name              String?
   password          String
   avatarUrl         String?
+  bio               String?        @db.VarChar(280)
   isPrivate         Boolean        @default(false)
   totalPoints       Int            @default(0)
   role              UserRole       @default(USER)
@@ -109,6 +110,7 @@ model User {
   attempts          Attempt[]
   verificationVotes VerificationVote[]
   attemptComments   AttemptComment[]
+  attemptCommentUpvotes AttemptCommentUpvote[]
   attemptUpvotes    AttemptUpvote[]
   attemptReactions  AttemptReaction[]
   pointsLedger      PointsLedger[]
@@ -253,16 +255,34 @@ model AttemptComment {
   id        String   @id @default(cuid())
   attemptId String
   userId    String
+  parentId  String?
   body      String   @db.VarChar(500)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent  AttemptComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies AttemptComment[] @relation("CommentReplies")
+  upvotes AttemptCommentUpvote[]
 
   @@index([attemptId])
   @@index([userId])
+  @@index([parentId])
   @@index([createdAt])
+}
+
+model AttemptCommentUpvote {
+  id        String   @id @default(cuid())
+  commentId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  comment AttemptComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+  @@index([commentId])
 }
 
 model AttemptUpvote {

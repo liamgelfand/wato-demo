@@ -1,27 +1,31 @@
-import { useCallback, useEffect, useState } from 'react'
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native'
-import { ChallengeCard, type ChallengeItem } from '../../components/ui/challenge-card'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Animated, RefreshControl, StyleSheet, Text, View } from 'react-native'
+import { router } from 'expo-router'
+import { ActivityCard, type ActivityItem } from '../../components/feed/activity-card'
+import { FeedBrandHeader } from '../../components/feed/feed-brand-header'
 import { Screen } from '../../components/ui/screen'
-import { TabHeader } from '../../components/ui/tab-header'
 import { AuthLoading, useAuthToken } from '../../hooks/use-auth-token'
-import { fetchFeed } from '../../lib/api'
+import { fetchFeedActivity } from '../../lib/api'
 import { colors, spacing, typography } from '../../constants/theme'
 
-export default function ChallengesTab() {
+export default function FeedTab() {
   const { token, loading: authLoading } = useAuthToken()
-  const [challenges, setChallenges] = useState<ChallengeItem[]>([])
+  const [activity, setActivity] = useState<ActivityItem[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const scrollY = useRef(new Animated.Value(0)).current
 
   const load = useCallback(async (accessToken: string) => {
-    const data = await fetchFeed(accessToken, 'challenges')
-    setChallenges(data.challenges ?? [])
+    setError(null)
+    const items = await fetchFeedActivity(accessToken)
+    setActivity(items)
   }, [])
 
   useEffect(() => {
     if (!token) return
     load(token)
-      .catch(() => {})
+      .catch((e) => setError(e instanceof Error ? e.message : 'Could not load feed'))
       .finally(() => setLoading(false))
   }, [token, load])
 
@@ -39,22 +43,34 @@ export default function ChallengesTab() {
 
   return (
     <Screen padded={false}>
-      <TabHeader title="Wato" subtitle="Challenges to do" />
-      <FlatList
-        data={challenges}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <Animated.FlatList
+        data={activity}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        keyboardDismissMode="interactive"
+        keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
+        ListHeaderComponent={
+          <FeedBrandHeader scrollY={scrollY} onCreate={() => router.push('/create')} />
+        }
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>All caught up</Text>
-            <Text style={styles.emptyBody}>No open challenges right now.</Text>
+            <Text style={styles.emptyTitle}>No activity yet</Text>
+            <Text style={styles.emptyBody}>
+              When friends and other users complete challenges, their wins show up here.
+            </Text>
           </View>
         }
-        renderItem={({ item }) => <ChallengeCard challenge={item} />}
+        renderItem={({ item }) => <ActivityCard item={item} />}
       />
     </Screen>
   )
@@ -62,9 +78,16 @@ export default function ChallengesTab() {
 
 const styles = StyleSheet.create({
   list: {
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
     paddingBottom: spacing.xl,
     flexGrow: 1,
+  },
+  error: {
+    ...typography.caption,
+    color: colors.destructive,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
   },
   empty: {
     alignItems: 'center',

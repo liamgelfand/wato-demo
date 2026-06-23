@@ -56,11 +56,10 @@ export function Navbar() {
   const navLinks = [
     { href: '/', label: 'Feed' },
     { href: '/explore', label: 'Explore' },
+    { href: '/messages', label: 'Messages' },
     { href: '/create', label: 'Create' },
     { href: '/leaderboard', label: 'Leaderboard' },
-    { href: '/friends', label: 'Friends' },
     { href: '/teams', label: 'Teams' },
-    { href: '/messages', label: 'Messages' },
   ]
 
   if (status === 'loading') {

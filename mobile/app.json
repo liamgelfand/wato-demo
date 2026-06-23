@@ -21,7 +21,15 @@
       "expo-router",
       "expo-secure-store",
       "expo-asset",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Wato to access your photos for challenge proof and profile pictures.",
+          "cameraPermission": "Allow Wato to use your camera for challenge proof and profile pictures.",
+          "microphonePermission": "Allow Wato to record video with audio for challenge proof."
+        }
+      ]
     ],
     "extra": {
       "apiUrl": "http://localhost:3000"

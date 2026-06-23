@@ -15,9 +15,12 @@ test.describe('Authentication', () => {
     await page.fill('input[type="password"]', 'password123')
     await page.click('button[type="submit"]')
 
-    await expect(page).toHaveURL('/')
+    await page.waitForURL('/', { timeout: 15000 })
     await expect(page.getByRole('heading', { name: /^wato$/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /challenges to do/i })).toBeVisible()
+    await expect(
+      page.getByText(/completed challenges from friends and the community/i)
+    ).toBeVisible()
+    await expect(page.getByRole('link', { name: /explore recommendations/i })).toBeVisible()
   })
 
   test('should show error for invalid credentials', async ({ page }) => {
